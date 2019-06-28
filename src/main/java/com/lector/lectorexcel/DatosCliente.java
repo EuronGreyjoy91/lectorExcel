@@ -8,6 +8,7 @@ public class DatosCliente {
 	private String telefono;
 	private String origen;
 	private String observacion;
+	private String mail;
 	
 	public DatosCliente() {
 		super();
@@ -17,6 +18,7 @@ public class DatosCliente {
 		this.telefono = "";
 		this.origen = "";
 		this.observacion = "";
+		this.mail = "";
 	}
 
 	public String getFecha() {
@@ -65,5 +67,13 @@ public class DatosCliente {
 	
 	public void setObservacion(String observacion) {
 		this.observacion = observacion;
+	}
+	
+	public String getMail() {
+		return mail;
+	}
+	
+	public void setMail(String mail) {
+		this.mail = mail;
 	}
 }
