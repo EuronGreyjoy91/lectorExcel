@@ -112,6 +112,10 @@ public class MainController {
 			cell = row.getCell(11);
 			String origen = cell.getStringCellValue().equals("ig") ? "Instagram" : "Facebook";
 			
+			//MAIL
+			cell = row.getCell(14);
+			String mail = cell.getStringCellValue();
+			
 			//IMPRESION
 //			System.out.println(fecha + " * " + tratamiento + " * " + nombre + " * " + tel + " * " + origen);
 			totalContactos++;
@@ -123,6 +127,7 @@ public class MainController {
 			datosCliente.setOrigen(origen);
 			datosCliente.setTelefono(tel);
 			datosCliente.setTratamiento(tratamiento);
+			datosCliente.setMail(mail);
 			
 			listaDatosCliente.add(datosCliente);
 			
@@ -181,9 +186,9 @@ public class MainController {
 	        	row = sheet2.createRow(rowNumber);
 		        row.createCell(cellNumber++).setCellValue(dt.getFecha());
 		        row.createCell(cellNumber++).setCellValue(dt.getTratamiento());
-		        row.createCell(cellNumber++).setCellValue(dt.getNombre());
+		        row.createCell(cellNumber++).setCellValue(dt.getNombre() != null && !dt.getNombre().equals("") ? dt.getNombre() : dt.getMail());
 		        row.createCell(cellNumber++).setCellValue(dt.getTelefono());
-		        row.createCell(cellNumber++).setCellValue(dt.getOrigen());
+		        row.createCell(cellNumber++).setCellValue("Facebook");
 		        row.createCell(cellNumber++).setCellValue(dt.getObservacion());
 	        	
 		        rowNumber++;
