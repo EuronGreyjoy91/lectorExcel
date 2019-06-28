@@ -24,7 +24,10 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -33,16 +36,14 @@ import org.apache.poi.ss.util.NumberToTextConverter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.lector.lectorexcel.DatosCliente;
 
 @Controller
-@RequestMapping("/excel")
 public class MainController {
 
-	@GetMapping(value = "/formulario")
+	@GetMapping(value={"", "/", "/formulario"})
 	public String formulario() {
 		return "formulario";
 	}
@@ -52,7 +53,7 @@ public class MainController {
 	public String procesar(HttpServletRequest request, 
 		    HttpServletResponse response, MultipartFile file) throws IOException, EncryptedDocumentException, InvalidFormatException, ParseException {
 			
-		File excel = new File(request.getRealPath("") + "/" + file.getOriginalFilename());
+		File excel = new File(request.getRealPath("") + "/" + new Date().getTime() + file.getOriginalFilename());
 		file.transferTo(excel);
 		Workbook workbook2222 = WorkbookFactory.create(excel);
 		Sheet sheet = workbook2222.getSheetAt(0);
@@ -136,25 +137,41 @@ public class MainController {
 			
 			Calendar d = Calendar.getInstance();
 			
-			String fileName = "contactos"+(d.get(Calendar.YEAR) + "_" + d.get(Calendar.DATE))+".xls";
+			String fileName = "contactos"+new Date().getTime()+".xls";
 	        HSSFWorkbook workbook2 = new HSSFWorkbook();
 	        HSSFSheet sheet2 = workbook2.createSheet("CONTACTOS");
+	        
+	        CellStyle cs = workbook2.createCellStyle();
+	        cs.setFillForegroundColor(IndexedColors.PINK.getIndex());
+	        cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	
 	        Integer rowNumber = 0;
 	        Integer cellNumber = 0;
 	        
-	        HSSFRow rowhead = sheet2.createRow(rowNumber);
-	        rowhead.createCell(0).setCellValue("CONTACTOS");
-	
-	        rowNumber++;
-	        
 	        HSSFRow row = sheet2.createRow(rowNumber);
-	        row.createCell(0).setCellValue("FECHA");
-	        row.createCell(1).setCellValue("TRATAMIENTO");
-	        row.createCell(2).setCellValue("NOMBRE");
-	        row.createCell(3).setCellValue("TELEFONO");
-	        row.createCell(4).setCellValue("ORIGEN");
-	        row.createCell(5).setCellValue("OBSERVACIONES");
+	        Cell cell = row.createCell(0);
+	        cell.setCellStyle(cs);
+	        cell.setCellValue("FECHA");
+	        
+	        cell = row.createCell(1);
+	        cell.setCellStyle(cs);
+	        cell.setCellValue("TRATAMIENTO");
+	        
+	        cell = row.createCell(2);
+	        cell.setCellStyle(cs);
+	        cell.setCellValue("NOMBRE");
+	        
+	        cell = row.createCell(3);
+	        cell.setCellStyle(cs);
+	        cell.setCellValue("TELEFONO");
+	        
+	        cell = row.createCell(4);
+	        cell.setCellStyle(cs);
+	        cell.setCellValue("ORIGEN");
+	        
+	        cell = row.createCell(5);
+	        cell.setCellStyle(cs);
+	        cell.setCellValue("OBSERVACIONES");
 	        
 	        rowNumber++;
 	        
@@ -172,10 +189,11 @@ public class MainController {
 		        rowNumber++;
 	        }
 	
+	        autoSizeColumns(workbook2);
 	        
 	        FileOutputStream fileOut = new FileOutputStream(fileName);
 	        workbook2.write(fileOut);
-	        autoSizeColumns(workbook2);
+	      
 	        fileOut.close();
 	        System.out.println("Your excel file has been generated!");
 	
@@ -210,7 +228,7 @@ public class MainController {
 	        while ((bytesRead = in.read(buffer)) != -1) {
 	            outStream.write(buffer, 0, bytesRead);
 	        }
-	
+	        
 	        in.close();
 	        outStream.close();
 	
@@ -218,8 +236,8 @@ public class MainController {
 	    } catch (Exception ex) {
 	        System.out.println(ex);
 	    }
-	    
-		return "redirect:/excel/formulario";
+		
+		return "redirect:/formulario";
 	}
 	
 	private String capitalize(final String texto) {
