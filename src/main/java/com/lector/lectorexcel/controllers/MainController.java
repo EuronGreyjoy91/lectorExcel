@@ -102,6 +102,7 @@ public class MainController {
 			cell = row.getCell(13);
 			String tel = cell.getStringCellValue();
 			tel = tel.replaceAll("\\+", "");
+			tel = tel.replaceAll("p:", "");
 			
 			if(tel.length() >= 12){
 				if(tel.startsWith("54"))
