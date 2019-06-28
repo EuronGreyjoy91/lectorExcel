@@ -107,6 +107,8 @@ public class MainController {
 			if(tel.length() >= 12){
 				if(tel.startsWith("54"))
 					tel = tel.substring(2);
+				else if(tel.startsWith("549"))
+					tel = tel.substring(3);
 			}
 			
 			//ORIGEN
