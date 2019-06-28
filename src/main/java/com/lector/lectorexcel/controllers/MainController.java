@@ -101,7 +101,7 @@ public class MainController {
 			//TELEFONO
 			cell = row.getCell(13);
 			String tel = cell.getStringCellValue();
-			tel.replaceAll("\\+", "");
+			tel = tel.replaceAll("\\+", "");
 			
 			if(tel.length() >= 12){
 				if(tel.startsWith("54"))
