@@ -32,10 +32,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.NumberToTextConverter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.lector.lectorexcel.DatosCliente;
@@ -51,30 +51,37 @@ public class MainController {
 	@SuppressWarnings("deprecation")
 	@PostMapping(value = "/procesar")
 	public String procesar(HttpServletRequest request, 
-		    HttpServletResponse response, MultipartFile file) throws IOException, EncryptedDocumentException, InvalidFormatException, ParseException {
+		    HttpServletResponse response, MultipartFile file,
+		    @RequestParam (required = false, value = "mail") String emailBuscado) 
+		    		throws IOException, EncryptedDocumentException, InvalidFormatException, ParseException {
 			
-		File excel = new File(request.getRealPath("") + "/" + new Date().getTime() + file.getOriginalFilename());
-		file.transferTo(excel);
-		Workbook workbook2222 = WorkbookFactory.create(excel);
-		Sheet sheet = workbook2222.getSheetAt(0);
-
-		System.out.print(sheet.getPhysicalNumberOfRows());
+		File excelFolder = new File(request.getRealPath("") + "/excel");
+		cleanFolder(excelFolder);
 		
+		File archivoOriginal = new File(request.getRealPath("") + "/excel/" + new Date().getTime() + file.getOriginalFilename()
+				.replaceAll("á", "a")
+				.replaceAll("é", "e")
+				.replaceAll("í", "i")
+				.replaceAll("ó", "o")
+				.replaceAll("ú", "u")
+				.replaceAll("Á", "A")
+				.replaceAll("É", "E")
+				.replaceAll("Í", "I")
+				.replaceAll("Ó", "O")
+				.replaceAll("Ú", "U"));
+		
+		file.transferTo(archivoOriginal);
+		Workbook workbookOriginal = WorkbookFactory.create(archivoOriginal);
+		Sheet sheet = workbookOriginal.getSheetAt(0);
+
 		DataFormatter dataFormatter = new DataFormatter();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar c = Calendar.getInstance();
 		
-		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		
-		Integer totalFilas = sheet.getPhysicalNumberOfRows() - 1;
-		Integer totalContactos = 0;
 		List<DatosCliente> listaDatosCliente = new ArrayList<DatosCliente>();
 		DatosCliente datosCliente;
 		
 		for (Row row : sheet) {
-			
 			if(row.getRowNum() == 0)
 				continue;
 			
@@ -95,61 +102,61 @@ public class MainController {
 			//NOMBRE
 			cell = row.getCell(12);
 			String nombre = cell.getStringCellValue();
-			nombre = nombre.replaceAll("[^A-Za-z0-9\\s\\ñ]", "");
+			nombre = nombre
+						.replaceAll("á", "a")
+						.replaceAll("é", "e")
+						.replaceAll("í", "i")
+						.replaceAll("ó", "o")
+						.replaceAll("ú", "u")
+						.replaceAll("Á", "A")
+						.replaceAll("É", "E")
+						.replaceAll("Í", "I")
+						.replaceAll("Ó", "O")
+						.replaceAll("Ú", "U");
+						
+			nombre = nombre.replaceAll("[^A-Za-z0-9\\s\\ñ\\Ñ]", "");
 			nombre = capitalize(nombre);
 			
 			//TELEFONO
 			cell = row.getCell(13);
-			String tel = cell.getStringCellValue();
-			tel = tel.replaceAll("\\+", "");
-			tel = tel.replaceAll("p:", "");
+			String tel = cell.getStringCellValue().replaceAll("\\+", "").replaceAll("p:", "");
 			
 			if(tel.length() >= 12){
-				if(tel.startsWith("54"))
-					tel = tel.substring(2);
-				else if(tel.startsWith("549"))
+				if(tel.startsWith("549") || tel.startsWith("540"))
 					tel = tel.substring(3);
+				else if(tel.startsWith("54"))
+					tel = tel.substring(2);
 			}
-			
-			//ORIGEN
-			cell = row.getCell(11);
-			String origen = cell.getStringCellValue().equals("ig") ? "Instagram" : "Facebook";
 			
 			//MAIL
 			cell = row.getCell(14);
-			String mail = cell.getStringCellValue();
+			String mail = cell.getStringCellValue().toLowerCase();
 			
-			//IMPRESION
-//			System.out.println(fecha + " * " + tratamiento + " * " + nombre + " * " + tel + " * " + origen);
-			totalContactos++;
+			if(emailBuscado != null && !emailBuscado.equals(""))
+				if(emailBuscado.toLowerCase().equals(mail))
+					break;
 			
 			datosCliente = new DatosCliente();
 			datosCliente.setFecha(fecha);
 			datosCliente.setNombre(nombre);
 			datosCliente.setObservacion("-");
-			datosCliente.setOrigen(origen);
+			datosCliente.setOrigen("Facebook");
 			datosCliente.setTelefono(tel);
 			datosCliente.setTratamiento(tratamiento);
 			datosCliente.setMail(mail);
 			
 			listaDatosCliente.add(datosCliente);
-			
-//			sdf.format(new Date(dataFormatter.formatCellValue(cell)));
 		}
-		
-//		System.out.println("Total filas: " + totalFilas);
-//		System.out.println("Total clientes: " + totalContactos);
-		
 		
 		try {
 			
 			Calendar d = Calendar.getInstance();
 			
-			String fileName = "contactos"+new Date().getTime()+".xls";
-	        HSSFWorkbook workbook2 = new HSSFWorkbook();
-	        HSSFSheet sheet2 = workbook2.createSheet("CONTACTOS");
+			String fileName = "contactos"+(d.get(Calendar.YEAR) +"_"+d.get(Calendar.MONTH)+"_"+d.get(Calendar.DAY_OF_MONTH)+"_"+d.get(Calendar.HOUR_OF_DAY)+"_"+d.get(Calendar.MINUTE))+".xls";
+	        HSSFWorkbook workbookFinal = new HSSFWorkbook();
+	        HSSFSheet sheet2 = workbookFinal.createSheet("CONTACTOS");
 	        
-	        CellStyle cs = workbook2.createCellStyle();
+	        CellStyle cs = workbookFinal.createCellStyle();
 	        cs.setFillForegroundColor(IndexedColors.PINK.getIndex());
 	        cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	
@@ -175,9 +182,13 @@ public class MainController {
 	        
 	        cell = row.createCell(4);
 	        cell.setCellStyle(cs);
-	        cell.setCellValue("ORIGEN");
+	        cell.setCellValue("EMAIL");
 	        
 	        cell = row.createCell(5);
+	        cell.setCellStyle(cs);
+	        cell.setCellValue("ORIGEN");
+	        
+	        cell = row.createCell(6);
 	        cell.setCellStyle(cs);
 	        cell.setCellValue("OBSERVACIONES");
 	        
@@ -191,19 +202,19 @@ public class MainController {
 		        row.createCell(cellNumber++).setCellValue(dt.getTratamiento());
 		        row.createCell(cellNumber++).setCellValue(dt.getNombre() != null && !dt.getNombre().equals("") ? dt.getNombre() : dt.getMail());
 		        row.createCell(cellNumber++).setCellValue(dt.getTelefono());
+		        row.createCell(cellNumber++).setCellValue(dt.getMail());
 		        row.createCell(cellNumber++).setCellValue("Facebook");
 		        row.createCell(cellNumber++).setCellValue(dt.getObservacion());
 	        	
 		        rowNumber++;
 	        }
 	
-	        autoSizeColumns(workbook2);
+	        autoSizeColumns(workbookFinal);
 	        
 	        FileOutputStream fileOut = new FileOutputStream(fileName);
-	        workbook2.write(fileOut);
+	        workbookFinal.write(fileOut);
 	      
 	        fileOut.close();
-	        System.out.println("Your excel file has been generated!");
 	
 	        //Code to download
 	        File fileToDownload = new File(fileName);
@@ -216,7 +227,6 @@ public class MainController {
 	            // Set to binary type if MIME mapping not found
 	            mimeType = "application/octet-stream";
 	        }
-	        System.out.println("MIME type: " + mimeType);
 	
 	        // Modifies response
 	        response.setContentType(mimeType);
@@ -239,8 +249,6 @@ public class MainController {
 	        
 	        in.close();
 	        outStream.close();
-	
-	        System.out.println("File downloaded at client successfully");
 	    } catch (Exception ex) {
 	        System.out.println(ex);
 	    }
@@ -272,6 +280,14 @@ public class MainController {
 	                sheet.autoSizeColumn(columnIndex);
 	            }
 	        }
+	    }
+	}
+	
+	public static void cleanFolder(File folder) {
+	    File[] files = folder.listFiles();
+	    if(files!=null) {
+	        for(File f: files)
+	        	f.delete();
 	    }
 	}
 }
