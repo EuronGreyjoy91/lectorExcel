@@ -45,7 +45,7 @@
     </head>
     <body>
     	<div class = "container main-container">
-    		<h1>Procesador de excel de Facebook <small>v1.1.0</small></h1>
+    		<h1>Procesador de excel de Facebook <small>v1.1.1</small></h1>
     		<form action = "/procesar" class="needs-validation" novalidate enctype="multipart/form-data" method = "POST">
 			  <div class="form-row">
 			    <div class="col-md-12 mb-3">

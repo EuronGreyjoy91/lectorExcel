@@ -25,6 +25,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -32,6 +33,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.NumberToTextConverter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -119,7 +121,12 @@ public class MainController {
 			
 			//TELEFONO
 			cell = row.getCell(13);
-			String tel = cell.getStringCellValue().replaceAll("\\+", "").replaceAll("p:", "");
+			String tel;
+			
+			if(cell.getCellTypeEnum() == CellType.STRING)
+				tel = cell.getStringCellValue().replaceAll("\\+", "").replaceAll("p:", "");
+			else 
+				tel = NumberToTextConverter.toText(cell.getNumericCellValue()).replaceAll("\\+", "").replaceAll("p:", "");
 			
 			if(tel.length() >= 12){
 				if(tel.startsWith("549") || tel.startsWith("540"))
