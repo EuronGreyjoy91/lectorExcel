@@ -64,9 +64,24 @@
 			      <label for="mail"><b>Email l&iacute;mite</b></label>
 			      <input type="email" class="form-control" id="mail" name = "mail">
 			    </div>
-			    <button type="submit" class="btn btn-outline-primary" style = "margin-top: 10px"><i class="fa fa-check" aria-hidden="true"></i>&nbsp;Procesar</button>
-			  	<button type="reset" class="btn btn-outline-danger ml-3" style = "margin-top: 10px"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;Limpiar</button>		 
 			  </div>
+			  <div class="form-check">
+  			      <input class="form-check-input" type="checkbox" value="true" id="contactosMexico" name = "contactosMexico">
+				  <label class="form-check-label" for=contactosMexico>
+				    	<b>Contactos de Mexico?</b>
+				  </label>
+			  </div>
+			  <br>
+			  <div class="form-check">
+  			      <input class="form-check-input" type="checkbox" value="true" id="incluirMail" name = "incluirMail" checked>
+				  <label class="form-check-label" for=incluirMail>
+				    	<b>Incluir columna mail?</b>
+				  </label>
+			  </div>
+			  <br>
+			  
+			  <button type="submit" class="btn btn-outline-primary" style = "margin-top: 10px"><i class="fa fa-check" aria-hidden="true"></i>&nbsp;Procesar</button>
+			  <button type="reset" class="btn btn-outline-danger ml-3" style = "margin-top: 10px"><i class="fa fa-times" aria-hidden="true"></i>&nbsp;Limpiar</button>		 
 			</form>
 				<a href = "https://www.youtube.com/watch?v=RZIhpba83hY" target = "_blank">
 					<div data-toggle="tooltip" data-placement="left" title="?????" 

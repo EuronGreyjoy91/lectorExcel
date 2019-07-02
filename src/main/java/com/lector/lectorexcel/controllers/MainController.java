@@ -54,7 +54,9 @@ public class MainController {
 	@PostMapping(value = "/procesar")
 	public String procesar(HttpServletRequest request, 
 		    HttpServletResponse response, MultipartFile file,
-		    @RequestParam (required = false, value = "mail") String emailBuscado) 
+		    @RequestParam (required = false, value = "mail") String emailBuscado,
+		    @RequestParam (required = false, defaultValue = "false") Boolean contactosMexico,
+		    @RequestParam (required = false, defaultValue = "false") Boolean incluirMail) 
 		    		throws IOException, EncryptedDocumentException, InvalidFormatException, ParseException {
 			
 		File excelFolder = new File(request.getRealPath("") + "/excel");
@@ -124,17 +126,29 @@ public class MainController {
 			String tel;
 			
 			if(cell.getCellTypeEnum() == CellType.STRING)
-				tel = cell.getStringCellValue().replaceAll("\\+", "").replaceAll("p:", "");
+				tel = cell.getStringCellValue();
 			else 
-				tel = NumberToTextConverter.toText(cell.getNumericCellValue()).replaceAll("\\+", "").replaceAll("p:", "");
+				tel = NumberToTextConverter.toText(cell.getNumericCellValue());
 			
-			if(tel.length() >= 12){
-				if(tel.startsWith("549") || tel.startsWith("540"))
-					tel = tel.substring(3);
-				else if(tel.startsWith("54"))
-					tel = tel.substring(2);
+//			.replaceAll("\\+", "").replaceAll("p:", "");
+			
+			if(contactosMexico) {
+				tel = tel.replaceAll("p:", "");
+				
+				if(!tel.startsWith("+"))
+					tel = "+" + tel;
 			}
-			
+			else {
+				tel = tel.replaceAll("\\+", "").replaceAll("p:", "");
+				
+				if(tel.length() >= 12){
+					if(tel.startsWith("549") || tel.startsWith("540"))
+						tel = tel.substring(3);
+					else if(tel.startsWith("54"))
+						tel = tel.substring(2);
+				}
+			}
+
 			//MAIL
 			cell = row.getCell(14);
 			String mail = cell.getStringCellValue().toLowerCase();
@@ -156,10 +170,10 @@ public class MainController {
 		}
 		
 		try {
-			
 			Calendar d = Calendar.getInstance();
+			cleanFolder(excelFolder);
 			
-			String fileName = "contactos"+(d.get(Calendar.YEAR) +"_"+d.get(Calendar.MONTH)+"_"+d.get(Calendar.DAY_OF_MONTH)+"_"+d.get(Calendar.HOUR_OF_DAY)+"_"+d.get(Calendar.MINUTE))+".xls";
+			String fileName = request.getRealPath("") + "/excel/contactos"+(d.get(Calendar.YEAR) +"_"+d.get(Calendar.MONTH)+"_"+d.get(Calendar.DAY_OF_MONTH)+"_"+d.get(Calendar.HOUR_OF_DAY)+"_"+d.get(Calendar.MINUTE))+".xls";
 	        HSSFWorkbook workbookFinal = new HSSFWorkbook();
 	        HSSFSheet sheet2 = workbookFinal.createSheet("CONTACTOS");
 	        
@@ -171,31 +185,33 @@ public class MainController {
 	        Integer cellNumber = 0;
 	        
 	        HSSFRow row = sheet2.createRow(rowNumber);
-	        Cell cell = row.createCell(0);
+	        Cell cell = row.createCell(cellNumber++);
 	        cell.setCellStyle(cs);
 	        cell.setCellValue("FECHA");
 	        
-	        cell = row.createCell(1);
+	        cell = row.createCell(cellNumber++);
 	        cell.setCellStyle(cs);
 	        cell.setCellValue("TRATAMIENTO");
 	        
-	        cell = row.createCell(2);
+	        cell = row.createCell(cellNumber++);
 	        cell.setCellStyle(cs);
 	        cell.setCellValue("NOMBRE");
 	        
-	        cell = row.createCell(3);
+	        cell = row.createCell(cellNumber++);
 	        cell.setCellStyle(cs);
 	        cell.setCellValue("TELEFONO");
 	        
-	        cell = row.createCell(4);
-	        cell.setCellStyle(cs);
-	        cell.setCellValue("EMAIL");
+	        if(incluirMail) {
+	        	cell = row.createCell(cellNumber++);
+		        cell.setCellStyle(cs);
+		        cell.setCellValue("EMAIL");
+	        }
 	        
-	        cell = row.createCell(5);
+	        cell = row.createCell(cellNumber++);
 	        cell.setCellStyle(cs);
 	        cell.setCellValue("ORIGEN");
 	        
-	        cell = row.createCell(6);
+	        cell = row.createCell(cellNumber++);
 	        cell.setCellStyle(cs);
 	        cell.setCellValue("OBSERVACIONES");
 	        
@@ -209,7 +225,10 @@ public class MainController {
 		        row.createCell(cellNumber++).setCellValue(dt.getTratamiento());
 		        row.createCell(cellNumber++).setCellValue(dt.getNombre() != null && !dt.getNombre().equals("") ? dt.getNombre() : dt.getMail());
 		        row.createCell(cellNumber++).setCellValue(dt.getTelefono());
-		        row.createCell(cellNumber++).setCellValue(dt.getMail());
+		        
+		        if(incluirMail)
+		        	row.createCell(cellNumber++).setCellValue(dt.getMail());
+		        
 		        row.createCell(cellNumber++).setCellValue("Facebook");
 		        row.createCell(cellNumber++).setCellValue(dt.getObservacion());
 	        	
@@ -260,6 +279,8 @@ public class MainController {
 	        System.out.println(ex);
 	    }
 		
+		cleanFolder(excelFolder);
+		
 		return "redirect:/formulario";
 	}
 	
@@ -294,7 +315,8 @@ public class MainController {
 	    File[] files = folder.listFiles();
 	    if(files!=null) {
 	        for(File f: files)
-	        	f.delete();
+	        	if(!f.getName().equals("foo.txt"))
+	        		f.delete();
 	    }
 	}
 }
