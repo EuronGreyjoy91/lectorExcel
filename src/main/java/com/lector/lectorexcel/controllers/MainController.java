@@ -85,12 +85,39 @@ public class MainController {
 		List<DatosCliente> listaDatosCliente = new ArrayList<DatosCliente>();
 		DatosCliente datosCliente;
 		
+		Integer columnaFecha = null;
+		Integer columnaTratamiento = null;
+		Integer columnaNombre = null;
+		Integer columnaTelefono = null;
+		Integer columnaMail = null;
+		
+		Row primeraFila = sheet.getRow(0);
+		
+		Integer index = 0;
+		
+		for(Cell cell : primeraFila) {
+			
+			if(cell.getStringCellValue().equals("created_time"))
+				columnaFecha = index;
+			else if(cell.getStringCellValue().equals("campaign_name"))
+				columnaTratamiento = index;
+			else if(cell.getStringCellValue().equals("full_name"))
+				columnaNombre = index;
+			else if(cell.getStringCellValue().equals("phone_number"))
+				columnaTelefono = index;
+			else if(cell.getStringCellValue().equals("email"))
+				columnaMail = index;
+			
+			index++;
+		}
+		
+		
 		for (Row row : sheet) {
 			if(row.getRowNum() == 0)
 				continue;
 			
 			//FECHA
-			Cell cell = row.getCell(1);
+			Cell cell = row.getCell(columnaFecha);
 			
 			Date parsedDate = formatter.parse(dataFormatter.formatCellValue(cell));
 			c.setTime(parsedDate);
@@ -100,11 +127,11 @@ public class MainController {
 							((c.get(Calendar.MONTH) + 1) < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1));
 			
 			//TRATAMIENTO
-			cell = row.getCell(7);
+			cell = row.getCell(columnaTratamiento);
 			String tratamiento = cell.getStringCellValue();
 			
 			//NOMBRE
-			cell = row.getCell(12);
+			cell = row.getCell(columnaNombre);
 			String nombre = cell.getStringCellValue();
 			nombre = nombre
 						.replaceAll("á", "a")
@@ -122,15 +149,13 @@ public class MainController {
 			nombre = capitalize(nombre);
 			
 			//TELEFONO
-			cell = row.getCell(13);
+			cell = row.getCell(columnaTelefono);
 			String tel;
 			
 			if(cell.getCellTypeEnum() == CellType.STRING)
 				tel = cell.getStringCellValue();
 			else 
 				tel = NumberToTextConverter.toText(cell.getNumericCellValue());
-			
-//			.replaceAll("\\+", "").replaceAll("p:", "");
 			
 			if(contactosMexico) {
 				tel = tel.replaceAll("p:", "");
@@ -150,7 +175,7 @@ public class MainController {
 			}
 
 			//MAIL
-			cell = row.getCell(14);
+			cell = row.getCell(columnaMail);
 			String mail = cell.getStringCellValue().toLowerCase();
 			
 			if(emailBuscado != null && !emailBuscado.equals(""))
