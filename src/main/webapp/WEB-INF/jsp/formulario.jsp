@@ -45,7 +45,7 @@
     </head>
     <body>
     	<div class = "container main-container">
-    		<h1>Procesador de excel de Facebook <small>v1.2.0</small></h1>
+    		<h1>Procesador de excel de Facebook <small>v1.3.0</small></h1>
     		<form action = "/procesar" class="needs-validation" novalidate enctype="multipart/form-data" method = "POST">
 			  <div class="form-row">
 			    <div class="col-md-12 mb-3">
@@ -57,6 +57,12 @@
 			      <div class="invalid-feedback">
 			        Carga un archivo!
 			      </div>
+			    </div>
+			  </div>
+			  <div class="form-row">
+			    <div class="col-md-12 mb-3">
+			      <label for="nombre"><b>Nombre l&iacute;mite</b></label>
+			      <input type="text" class="form-control" id="nombre" name = "nombre">
 			    </div>
 			  </div>
 			  <div class="form-row">

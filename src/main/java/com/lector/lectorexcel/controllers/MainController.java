@@ -28,6 +28,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -55,6 +56,7 @@ public class MainController {
 	public String procesar(HttpServletRequest request, 
 		    HttpServletResponse response, MultipartFile file,
 		    @RequestParam (required = false, value = "mail") String emailBuscado,
+		    @RequestParam (required = false, value = "nombre") String nombreBuscado,
 		    @RequestParam (required = false, defaultValue = "false") Boolean contactosMexico,
 		    @RequestParam (required = false, defaultValue = "false") Boolean incluirMail) 
 		    		throws IOException, EncryptedDocumentException, InvalidFormatException, ParseException {
@@ -78,15 +80,11 @@ public class MainController {
 		Workbook workbookOriginal = WorkbookFactory.create(archivoOriginal);
 		Sheet sheet = workbookOriginal.getSheetAt(0);
 
-		DataFormatter dataFormatter = new DataFormatter();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar c = Calendar.getInstance();
 		
 		List<DatosCliente> listaDatosCliente = new ArrayList<DatosCliente>();
 		DatosCliente datosCliente;
 		
-		Integer columnaFecha = null;
-		Integer columnaTratamiento = null;
 		Integer columnaNombre = null;
 		Integer columnaTelefono = null;
 		Integer columnaMail = null;
@@ -97,11 +95,7 @@ public class MainController {
 		
 		for(Cell cell : primeraFila) {
 			
-			if(cell.getStringCellValue().equals("created_time"))
-				columnaFecha = index;
-			else if(cell.getStringCellValue().equals("campaign_name"))
-				columnaTratamiento = index;
-			else if(cell.getStringCellValue().equals("full_name"))
+			if(cell.getStringCellValue().equals("full_name"))
 				columnaNombre = index;
 			else if(cell.getStringCellValue().equals("phone_number"))
 				columnaTelefono = index;
@@ -111,24 +105,17 @@ public class MainController {
 			index++;
 		}
 		
-		
 		for (Row row : sheet) {
+			Cell cell;
 			if(row.getRowNum() == 0)
 				continue;
-			
-			//FECHA
-			Cell cell = row.getCell(columnaFecha);
-			
-			Date parsedDate = formatter.parse(dataFormatter.formatCellValue(cell));
-			c.setTime(parsedDate);
 			
 			String fecha = (c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : c.get(Calendar.DAY_OF_MONTH))
 							+ "-" + 
 							((c.get(Calendar.MONTH) + 1) < 10 ? "0" + (c.get(Calendar.MONTH) + 1) : (c.get(Calendar.MONTH) + 1));
 			
 			//TRATAMIENTO
-			cell = row.getCell(columnaTratamiento);
-			String tratamiento = cell.getStringCellValue();
+			String tratamiento = "Clientes Potenciales";
 			
 			//NOMBRE
 			cell = row.getCell(columnaNombre);
@@ -182,6 +169,10 @@ public class MainController {
 				if(emailBuscado.toLowerCase().equals(mail))
 					break;
 			
+			if(nombreBuscado != null && !nombreBuscado.equals(""))
+				if(nombreBuscado.toLowerCase().trim().equals(nombre.toLowerCase().trim()))
+					break;
+			
 			datosCliente = new DatosCliente();
 			datosCliente.setFecha(fecha);
 			datosCliente.setNombre(nombre);
@@ -205,7 +196,11 @@ public class MainController {
 	        CellStyle cs = workbookFinal.createCellStyle();
 	        cs.setFillForegroundColor(IndexedColors.PINK.getIndex());
 	        cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-	
+	        cs.setAlignment(HorizontalAlignment.CENTER);
+	        
+	        CellStyle cs2 = workbookFinal.createCellStyle();
+	        cs2.setAlignment(HorizontalAlignment.CENTER);
+	        
 	        Integer rowNumber = 0;
 	        Integer cellNumber = 0;
 	        
@@ -242,20 +237,42 @@ public class MainController {
 	        
 	        rowNumber++;
 	        
+	        Cell nuevaCelda;
+	        
 	        for(DatosCliente dt : listaDatosCliente) {
 	        	cellNumber = 0;
 	        	
 	        	row = sheet2.createRow(rowNumber);
-		        row.createCell(cellNumber++).setCellValue(dt.getFecha());
-		        row.createCell(cellNumber++).setCellValue(dt.getTratamiento());
-		        row.createCell(cellNumber++).setCellValue(dt.getNombre() != null && !dt.getNombre().equals("") ? dt.getNombre() : dt.getMail());
-		        row.createCell(cellNumber++).setCellValue(dt.getTelefono());
+	        	
+	        	nuevaCelda = row.createCell(cellNumber++);
+	        	nuevaCelda.setCellValue(dt.getFecha());
+	        	nuevaCelda.setCellStyle(cs2);
+	        	
+	        	nuevaCelda = row.createCell(cellNumber++);
+	        	nuevaCelda.setCellValue(dt.getTratamiento());
+	        	nuevaCelda.setCellStyle(cs2);
+	        	
+	        	nuevaCelda = row.createCell(cellNumber++);
+	        	nuevaCelda.setCellValue(dt.getNombre() != null && !dt.getNombre().equals("") ? dt.getNombre() : dt.getMail());
+	        	nuevaCelda.setCellStyle(cs2);
+	        	
+	        	nuevaCelda = row.createCell(cellNumber++);
+	        	nuevaCelda.setCellValue(dt.getTelefono());
+	        	nuevaCelda.setCellStyle(cs2);
+	        	
+		        if(incluirMail) {
+		        	nuevaCelda = row.createCell(cellNumber++);
+		        	nuevaCelda.setCellValue(dt.getMail());
+		        	nuevaCelda.setCellStyle(cs2);
+		        }
 		        
-		        if(incluirMail)
-		        	row.createCell(cellNumber++).setCellValue(dt.getMail());
-		        
-		        row.createCell(cellNumber++).setCellValue("Facebook");
-		        row.createCell(cellNumber++).setCellValue(dt.getObservacion());
+		        nuevaCelda = row.createCell(cellNumber++);
+	        	nuevaCelda.setCellValue("Facebook");
+	        	nuevaCelda.setCellStyle(cs2);
+	        	
+	        	nuevaCelda = row.createCell(cellNumber++);
+	        	nuevaCelda.setCellValue(dt.getObservacion());
+	        	nuevaCelda.setCellStyle(cs2);
 	        	
 		        rowNumber++;
 	        }
