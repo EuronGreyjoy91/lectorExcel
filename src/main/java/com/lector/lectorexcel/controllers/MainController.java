@@ -57,6 +57,7 @@ public class MainController {
 		    HttpServletResponse response, MultipartFile file,
 		    @RequestParam (required = false, value = "mail") String emailBuscado,
 		    @RequestParam (required = false, value = "nombre") String nombreBuscado,
+		    @RequestParam (required = false, value = "telefono") String telefonoBuscado,
 		    @RequestParam (required = false, defaultValue = "false") Boolean contactosMexico,
 		    @RequestParam (required = false, defaultValue = "false") Boolean incluirMail) 
 		    		throws IOException, EncryptedDocumentException, InvalidFormatException, ParseException {
@@ -149,6 +150,13 @@ public class MainController {
 				
 				if(!tel.startsWith("+"))
 					tel = "+" + tel;
+				
+				if(telefonoBuscado != null && !telefonoBuscado.equals("")) {
+					telefonoBuscado = telefonoBuscado.replaceAll("p:", "");
+					
+					if(!telefonoBuscado.startsWith("+"))
+						telefonoBuscado = "+" + telefonoBuscado;
+				}
 			}
 			else {
 				tel = tel.replaceAll("\\+", "").replaceAll("p:", "");
@@ -159,18 +167,34 @@ public class MainController {
 					else if(tel.startsWith("54"))
 						tel = tel.substring(2);
 				}
+				
+				if(telefonoBuscado != null && !telefonoBuscado.equals("")) {
+					telefonoBuscado = telefonoBuscado.replaceAll("\\+", "").replaceAll("p:", "");
+					
+					if(telefonoBuscado.length() >= 12){
+						if(telefonoBuscado.startsWith("549") ||telefonoBuscado.startsWith("540"))
+							telefonoBuscado = telefonoBuscado.substring(3);
+						else if(telefonoBuscado.startsWith("54"))
+							telefonoBuscado = telefonoBuscado.substring(2);
+					}
+				}
+				
 			}
-
+			
 			//MAIL
 			cell = row.getCell(columnaMail);
 			String mail = cell.getStringCellValue().toLowerCase();
 			
-			if(emailBuscado != null && !emailBuscado.equals(""))
-				if(emailBuscado.toLowerCase().equals(mail))
-					break;
+//			if(emailBuscado != null && !emailBuscado.equals(""))
+//				if(emailBuscado.toLowerCase().equals(mail))
+//					break;
+//			
+//			if(nombreBuscado != null && !nombreBuscado.equals(""))
+//				if(nombreBuscado.toLowerCase().trim().equals(nombre.toLowerCase().trim()))
+//					break;
 			
-			if(nombreBuscado != null && !nombreBuscado.equals(""))
-				if(nombreBuscado.toLowerCase().trim().equals(nombre.toLowerCase().trim()))
+			if(telefonoBuscado != null && !telefonoBuscado.equals(""))
+				if(telefonoBuscado.trim().equals(tel.trim()))
 					break;
 			
 			datosCliente = new DatosCliente();

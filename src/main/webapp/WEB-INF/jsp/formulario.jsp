@@ -45,7 +45,7 @@
     </head>
     <body>
     	<div class = "container main-container">
-    		<h1>Procesador de excel de Facebook <small>v1.3.0</small></h1>
+    		<h1>Procesador de excel de Facebook <small>v1.4.0</small></h1>
     		<form action = "/procesar" class="needs-validation" novalidate enctype="multipart/form-data" method = "POST">
 			  <div class="form-row">
 			    <div class="col-md-12 mb-3">
@@ -61,16 +61,22 @@
 			  </div>
 			  <div class="form-row">
 			    <div class="col-md-12 mb-3">
-			      <label for="nombre"><b>Nombre l&iacute;mite</b></label>
-			      <input type="text" class="form-control" id="nombre" name = "nombre">
+			      <label for="telefono"><b>Tel&eacute;fono l&iacute;mite</b></label>
+			      <input type="text" class="form-control" id="telefono" name = "telefono">
 			    </div>
 			  </div>
-			  <div class="form-row">
-			    <div class="col-md-12 mb-3">
-			      <label for="mail"><b>Email l&iacute;mite</b></label>
-			      <input type="email" class="form-control" id="mail" name = "mail">
-			    </div>
-			  </div>
+<!-- 			  <div class="form-row"> -->
+<!-- 			    <div class="col-md-12 mb-3"> -->
+<!-- 			      <label for="nombre"><b>Nombre l&iacute;mite</b></label> -->
+<!-- 			      <input type="text" class="form-control" id="nombre" name = "nombre"> -->
+<!-- 			    </div> -->
+<!-- 			  </div> -->
+<!-- 			  <div class="form-row"> -->
+<!-- 			    <div class="col-md-12 mb-3"> -->
+<!-- 			      <label for="mail"><b>Email l&iacute;mite</b></label> -->
+<!-- 			      <input type="email" class="form-control" id="mail" name = "mail"> -->
+<!-- 			    </div> -->
+<!-- 			  </div> -->
 			  <div class="form-check">
   			      <input class="form-check-input" type="checkbox" value="true" id="contactosMexico" name = "contactosMexico">
 				  <label class="form-check-label" for=contactosMexico>
