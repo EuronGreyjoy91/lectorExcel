@@ -10,8 +10,6 @@ _Proyecto creado con JAVA para procesar hojas de excel, remover información imp
 
 ## Autores ✒️
 
-_Menciona a todos aquellos que ayudaron a levantar el proyecto desde sus inicios_
-
 * **Federico Ignacio Ibarra Berardi** - [Federico Ibarra](https://github.com/EuronGreyjoy91)
 
 ---
