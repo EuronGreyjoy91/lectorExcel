@@ -6,7 +6,7 @@ _Proyecto creado con JAVA para procesar hojas de excel, remover información imp
 
 * [Spring MVC 5.1.3](https://spring.io/) - El framework web usado
 * [Maven](https://maven.apache.org/) - Manejador de dependencias
-* [Bootstrap 4](https://getbootstrap.com/) - Front - end
+* [Bootstrap 4](https://getbootstrap.com/) - Libreria frontend
 
 ## Autores ✒️
 
